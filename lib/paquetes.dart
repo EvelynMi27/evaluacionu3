@@ -157,18 +157,6 @@ class _VerPaquetesState extends State<VerPaquetes> {
       context,
     ).showSnackBar(SnackBar(content: Text('Error: $e')));
   }
-
-
-    //   await _enviarEntrega(id_paq, foto, position);
-    //   if (!mounted) return;
-    //   Navigator.pop(context);
-    // } catch (e) {
-    //   if (!mounted) return;
-    //   Navigator.pop(context);
-    //   ScaffoldMessenger.of(
-    //     context,
-    //   ).showSnackBar(SnackBar(content: Text('Error:$e')));
-    // }
   }
   void _mostrarPreviewEntrega(int id_paq, XFile foto, Position pos) {
   showModalBottomSheet(
