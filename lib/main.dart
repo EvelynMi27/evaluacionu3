@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/':(context)=>const Login(),
-        '/ver_paquetes':(context)=>const VerPaquetes(),
+        '/ver_paquetes':(context)=>VerPaquetes(),
       },
     );
   }

@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 class VerPaquetes extends StatefulWidget {
   const VerPaquetes({super.key});
@@ -146,17 +148,114 @@ class _VerPaquetesState extends State<VerPaquetes> {
         Navigator.pop(context);
         return;
       }
-      await _enviarEntrega(id_paq, foto, position);
-      if (!mounted) return;
       Navigator.pop(context);
-    } catch (e) {
-      if (!mounted) return;
-      Navigator.pop(context);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error:$e')));
-    }
+    _mostrarPreviewEntrega(id_paq, foto, position);
+  } catch (e) {
+    if (!mounted) return;
+    Navigator.pop(context);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Error: $e')));
   }
+
+
+    //   await _enviarEntrega(id_paq, foto, position);
+    //   if (!mounted) return;
+    //   Navigator.pop(context);
+    // } catch (e) {
+    //   if (!mounted) return;
+    //   Navigator.pop(context);
+    //   ScaffoldMessenger.of(
+    //     context,
+    //   ).showSnackBar(SnackBar(content: Text('Error:$e')));
+    // }
+  }
+  void _mostrarPreviewEntrega(int id_paq, XFile foto, Position pos) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.white,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (context) {
+      return Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              "Confirmar entrega",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+
+            // Foto tomada
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.file(
+                File(foto.path),
+                width: double.infinity,
+                height: 200,
+                fit: BoxFit.cover,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            // MAPA OPENSTREETMAP
+            SizedBox(
+              height: 250,
+              child: FlutterMap(
+                options: MapOptions(
+                  center: LatLng(pos.latitude, pos.longitude),
+                  zoom: 16,
+                ),
+                children: [
+                  TileLayer(
+                    urlTemplate: "https://api.maptiler.com/maps/openstreetmap/{z}/{x}/{y}.jpg?key=Eh0TEfB10qbbG3j2Zrk9",
+                    userAgentPackageName: "com.example.app",
+                  ),
+                  MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: LatLng(pos.latitude, pos.longitude),
+                        width: 50,
+                        height: 50,
+                        child: const Icon(Icons.location_pin,
+                            color: Colors.red, size: 40),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            // BOTÓN CONFIRMAR
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pop(context); // cierra el modal
+                _enviarEntrega(id_paq, foto, pos);
+              },
+              icon: const Icon(Icons.check_circle),
+              label: const Text(
+                "Confirmar entrega",
+                style: TextStyle(fontSize: 18),
+              ),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
 
   Future<void> _enviarEntrega(int id_paq, XFile foto, Position position) async {
     try {
